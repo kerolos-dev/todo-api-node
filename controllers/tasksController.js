@@ -1,14 +1,15 @@
 const pool = require('../config/db');
+const catchError = require('../middlewares/catchError');
 
-const getTasks = async (req, res) => {
+const getTasks =catchError(async (req, res) => {
     const result = await pool.query(
         'SELECT * FROM tasks WHERE user_id = $1',
         [req.user.id]
     );
     res.json({ tasks: result.rows });
-};
+}) 
 
-const createTask = async (req, res) => {
+const createTask =catchError(async (req, res) => {
     const { title } = req.body;
     const user_id = req.user.id;
     const result = await pool.query(
@@ -16,9 +17,10 @@ const createTask = async (req, res) => {
         [title, user_id]
     );
     res.json({ message: 'Task created', task: result.rows[0] });
-};
+}) 
 
-const updateTask = async (req, res) => {
+const updateTask =catchError (
+async (req, res) => {
     const { id } = req.params;
     const { title } = req.body;
     const user_id = req.user.id;
@@ -27,15 +29,15 @@ const updateTask = async (req, res) => {
         [title, id, user_id]
     );
     res.json({ message: 'Task updated', task: result.rows[0] });
-};
-
-const deleteTask = async (req, res) => {
+}) 
+const deleteTask =catchError(
+async (req, res) => {
     const { id } = req.params;
     await pool.query(
         'DELETE FROM tasks WHERE id = $1 AND user_id = $2',
         [id, req.user.id]
     );
     res.json({ message: 'Task deleted' });
-};
+}) 
 
 module.exports = { getTasks, createTask, updateTask, deleteTask };

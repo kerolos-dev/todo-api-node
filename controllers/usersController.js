@@ -1,8 +1,10 @@
 const pool = require('../config/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const catchError = require('../middlewares/catchError');
 
-const register = async (req, res) => {
+const register =catchError(
+async (req, res) => {
     const { email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
@@ -10,9 +12,10 @@ const register = async (req, res) => {
         [email, hashedPassword]
     );
     res.json({ message: 'User created', user: result.rows[0] });
-};
+}) 
 
-const login = async (req, res) => {
+const login =catchError(
+async (req, res) => {
     const { email, password } = req.body;
     const result = await pool.query(
         'SELECT * FROM users WHERE email = $1',
@@ -28,7 +31,7 @@ const login = async (req, res) => {
         { expiresIn: '1d' }
     );
     res.json({ message: 'Login successful', token });
-};
+}) 
 
 
 
